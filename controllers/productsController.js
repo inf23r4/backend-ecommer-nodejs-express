@@ -3,22 +3,32 @@ module.exports={
     getAll: async function(req, res, next) {
         try{
             let queryFind = {}
-        if(req.query.buscar){
-            queryFind={featuredproducts:{$regex:".*"+req.query.featuredproducts+".*",}}
+        if(req.query.featured){
+            queryFind={productdestacado:{$regex:".*"+req.query.featured+".*",$options:"i"}}
         }
-            const documents = await productsModel.find(queryFind)
-            res.json(documents)
+            const documents = await productsModel.find(queryFind).populate("category")
+            res.status(200).json(documents)
         }catch(e){
             console.log(e)
+            if(e.message){
+                res.status(500).json({status:"error",mensaje:e.message})
+                return
+            }
+            next(e)
         }
     },
     getById: async function(req, res, next) {
         console.log(req.params)
         try{
-            const documents = await productsModel.findById(req.params.id)
-            res.json(documents)
+            const documents = await productsModel.findById(req.params.id).populate("category")
+            res.status(200).json(documents)
         }catch(e){
             console.log(e)
+            if(e.message){
+                res.status(500).json({status:"error",mensaje:e.message})
+                return
+            }
+            next(e)
         }
     },
     create: async function(req, res, next) {
@@ -29,12 +39,18 @@ module.exports={
                 sku:req.body.sku,
                 description:req.body.description,
                 price:req.body.price,
-                featuredproducts:req.body.featuredproducts
+                productdestacado:req.body.productdestacado,
+                category:req.body.category
             })
             const document = await product.save()
-            res.json(document)
+            res.status(201).json(document)
         }catch(e){
             console.log(e)
+            if(e.message){
+                res.status(500).json({status:"error",mensaje:e.message})
+                return
+            }
+            next(e)
         }
         
         
@@ -44,8 +60,14 @@ module.exports={
             console.log(req.params)
             console.log(req.body)
             const producto = await productsModel.updateOne({_id:req.params.id},req.body)
-            res.json(producto)
+            res.status(200).json(producto)
         }catch(e){
+            console.log(e)
+            if(e.message){
+                res.status(500).json({status:"error",mensaje:e.message})
+                return
+            }
+            
             next(e)
         }
       },
@@ -53,9 +75,15 @@ module.exports={
           try{
             console.log(req.params)
             const producto = await productsModel.deleteOne({_id:req.params.id})
-            res.json(producto)
+            res.status(200).json(producto)
           }catch(e){
+            console.log(e)
+            if(e.message){
+                res.status(500).json({status:"error",mensaje:e.message})
+                return
+            }
+            
             next(e)
-          }
+        }
       }
 }

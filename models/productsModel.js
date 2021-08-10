@@ -11,8 +11,12 @@ const productSchema = new mongoose.Schema({
       type:Number,
       min:[1,errorMessage.GENERAL.min]
    },
-   featuredproduct:{
-      type:Boolean
+   productdestacado:{
+      type:String
+   },
+   category:{
+      type:mongoose.Schema.ObjectId,
+      ref:"categories"
    }
 })
 module.exports = mongoose.model("productos",productSchema)
